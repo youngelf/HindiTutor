@@ -1,0 +1,9 @@
+A Hindi Typing tutor program for Mac OS
+
+A simple typing tutor.  Relies on Unicode text files
+written in a plist for lessons.  Trivial to extend
+this to other Unicode languages.
+
+Works on Mac OS X PPC as well (10.5 and up)
+
+
