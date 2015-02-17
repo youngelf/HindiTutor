@@ -24,6 +24,8 @@
 
 
 @implementation HindiTypingAppDelegate
+
+@synthesize window;
 @synthesize inputArea;
 @synthesize instructionArea;
 @synthesize chapterMenu;
@@ -80,7 +82,9 @@
 		// Next chapter.
 		NSLog(@"-chapter = %d", [self currentChapter] + 1);
 		[self setCurrentChapter:([self currentChapter] + 1)];
-		NSLog(@"-Switching to chapter %@", [[self chapter] objectAtIndex:0]);
+		NSString *chapterName = [[self chapter] objectAtIndex:0];
+		NSLog(@"-Switching to chapter %@", chapterName);
+		[[self window] setTitle:[NSString stringWithFormat:@"Typing Tutor: %@", chapterName]];
 		// The instruction at position 0 is the name of the chapter.
 		nextInstruction = 1;
 	}
@@ -140,6 +144,8 @@
 		NSLog(@"Chapter too large: chapter = %d, instruction = %d", chapter, instruction);
 	}
 	[self setCurrentChapter:chapter];
+	NSString *chapterName = [[self chapter] objectAtIndex:0];
+	[[self window] setTitle:[NSString stringWithFormat:@"Typing Tutor: %@", chapterName]];
 	if (instruction + 1 >= [[self chapter] count]) {
 		instruction = 0;
 		NSLog(@"Instruction too large: chapter = %d, instruction = %d", chapter, instruction);
@@ -163,6 +169,10 @@
 	// TODO: highlight it.  Also, display chapter name in the title.
 	[self setCurrentChapter:chapter];
 	[self setCurrentInstruction:0];
+	NSString *chapterName = [[self chapter] objectAtIndex:0];
+	NSLog(@"switchChapter: Switching to chapter %@", chapterName);
+	[[self window] setTitle:[NSString stringWithFormat:@"Typing Tutor: %@", chapterName]];
+	
 	[self nextInstructionFromArray];
 }
 

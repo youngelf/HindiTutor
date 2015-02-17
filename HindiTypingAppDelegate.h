@@ -9,6 +9,8 @@
 #import <Cocoa/Cocoa.h>
 
 @interface HindiTypingAppDelegate : NSObject {
+	// The main window
+	NSWindow *window;
 	/// Area to accept keyboard input
 	NSTextView *inputArea;
 	/// Area to show the instructions.
@@ -31,6 +33,7 @@
 	BOOL currentlyBad;	
 }
 
+@property (retain) IBOutlet NSWindow *window;
 @property (retain) IBOutlet NSTextView *inputArea;
 @property (retain) IBOutlet NSTextField *instructionArea;
 @property (retain) IBOutlet NSTextField *wpm;

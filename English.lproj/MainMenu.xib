@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="462"/>
+			<integer value="371"/>
 			<integer value="29"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
@@ -1722,6 +1722,14 @@
 					</object>
 					<int key="connectionID">478</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">window</string>
+						<reference key="source" ref="228978624"/>
+						<reference key="destination" ref="972006081"/>
+					</object>
+					<int key="connectionID">479</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -2741,8 +2749,8 @@
 					<reference ref="9"/>
 					<string>{74, 862}</string>
 					<string>{{6, 978}, {478, 20}}</string>
-					<string>{{270, 398}, {480, 355}}</string>
-					<string>{{270, 398}, {480, 355}}</string>
+					<string>{{253, 348}, {480, 355}}</string>
+					<string>{{253, 348}, {480, 355}}</string>
 					<reference ref="9"/>
 					<string>{{33, 99}, {480, 360}}</string>
 					<string>{3.40282e+38, 3.40282e+38}</string>
@@ -2870,7 +2878,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">478</int>
+			<int key="maxID">479</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2889,6 +2897,7 @@
 							<string>chapterMenu</string>
 							<string>inputArea</string>
 							<string>instructionArea</string>
+							<string>window</string>
 							<string>wpm</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
@@ -2896,6 +2905,7 @@
 							<string>NSMenu</string>
 							<string>NSTextView</string>
 							<string>NSTextField</string>
+							<string>NSWindow</string>
 							<string>NSTextField</string>
 						</object>
 					</object>
