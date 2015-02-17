@@ -13,6 +13,11 @@
 /// See the next instruction
 - (BOOL) nextInstructionFromArray;
 
+// The chapter the user is doing.
+- (NSArray *) chapter;
+// The instruction the user is doing.
+- (NSString *) instruction;
+
 /// Name of the file containing our saved state
 - (NSString *) filenameWithStoredState;
 @end
@@ -26,10 +31,11 @@
 @implementation HindiTypingAppDelegate
 @synthesize inputArea;
 @synthesize instructionArea;
-@synthesize instruction;
+@synthesize chapterMenu;
 @synthesize wpm;
 @synthesize startTime;
-@synthesize listOfInstructions;
+@synthesize chapterInstructions;
+@synthesize currentChapter;
 @synthesize appState;
 @synthesize currentInstruction;
 @synthesize currentlyBad;
@@ -43,11 +49,21 @@
 		NSString *lessonFile = [mainBundle pathForResource:@"lesson" ofType:@"plist"];
 		NSLog (@"Got the location: %@", lessonFile);
 		NSArray *pieces = [NSArray arrayWithContentsOfFile:lessonFile];
-		[self setListOfInstructions:pieces];
+		[self setChapterInstructions:pieces];
+		// Set the first element as the current chapter.
+		[self setCurrentChapter:0];
+		[self setCurrentInstruction:0];
 		[self setCurrentlyBad:NO];
 	}
-
 	return self;
+}
+
+- (NSArray *) chapter {
+	return [[self chapterInstructions] objectAtIndex:[self currentChapter]];
+}
+
+- (NSString *) instruction {
+	return [[self chapter] objectAtIndex:[self currentInstruction]];
 }
 
 // Name of the file where we will store our state
@@ -58,18 +74,31 @@
 
 // Returns YES if we are at the end of the input.
 - (BOOL) nextInstructionFromArray {
-	if ([self currentInstruction] == [[self listOfInstructions] count]) {
-		// At the end of the array.
+	// Last chapter, and last instruction? Bail.
+	if (([self currentChapter] + 1 >= [[self chapterInstructions] count])
+		&& ([self currentInstruction] + 1 >= [[self chapter] count])) {
+		// At the end of instructions.
 		return YES;
 	}
-	// Increment the instruction pointer.
-	[self setCurrentInstruction:([self currentInstruction]+1)];
-	// Use the next instruction from the array.
-	[self setInstruction:[[self listOfInstructions] objectAtIndex:[self currentInstruction]]];
+	// If we are at the end of the chapter, then go to the next one.
+	// TODO(viki): Change the title to show the name of the chapter.
+	int nextInstruction = [self currentInstruction] + 1;
+	if (nextInstruction >= [[self chapter] count]) {
+		// Next chapter.
+		NSLog(@"-chapter = %d", [self currentChapter] + 1);
+		[self setCurrentChapter:([self currentChapter] + 1)];
+		NSLog(@"-Switching to chapter %@", [[self chapter] objectAtIndex:0]);
+		// The instruction at position 0 is the name of the chapter.
+		nextInstruction = 1;
+	}
+	NSLog(@"-instruction = %d", nextInstruction);
+	[self setCurrentInstruction:nextInstruction];
+
 	// Clear the input area
 	[[self inputArea] setRichText:YES];
 	[[self inputArea] setString:@""];
 	// Update the text area.
+	NSLog(@"The instruction is: %@", [self instruction]);
 	[[self instructionArea] setStringValue:[self instruction]];
 	// And start the timer.
 	[self setStartTime:[NSDate date]];
@@ -79,7 +108,6 @@
 - (void) applicationDidFinishLaunching: (NSNotification *) aNotification {
 	NSLog(@"applicationDidFinishLaunching");
 	
-	// TODO(viki): Read a config file from disk to see if we should resume
 	NSString *fileName = [self filenameWithStoredState];
 	NSLog(@"Name of file: %@", fileName);
 	[self setAppState: [NSMutableDictionary dictionaryWithContentsOfFile:fileName]];
@@ -92,23 +120,57 @@
 		NSLog (@"Wrote (? %d) to a file the dictionary %@", written, [self appState]);
 	}
 
+	NSArray *shopping = [NSArray arrayWithObjects:@"milk", @"eggs", @"bread", nil];
+	// Now let's iterate over this and create menu items for them.
+	for (NSString *item in shopping) {
+		NSLog(@"Adding %@", item);
+		NSMenuItem *element = [[NSMenuItem alloc] initWithTitle:item action:@selector(switchChapter:) keyEquivalent:@""];
+		[element setEnabled:YES];
+		[[self chapterMenu] addItem:[element autorelease]];
+		NSLog(@"The menu is: %@", element);
+	}
+	float fontSize = [[[self appState] objectForKey:@"fontSize"] floatValue];
+	if (fontSize != 0) {
+		[[self inputArea] setFont:[NSFont systemFontOfSize:fontSize]];
+	}
+	
 	// Read the instruction the user was doing last.  We subtract one because nextInstructionFromArray will increment this anyway.
-	[self setCurrentInstruction:[[[self appState] objectForKey:@"currentInstruction"] intValue] - 1];
+	int chapter = [[[self appState] objectForKey:@"currentChapter"] intValue];
+	int instruction = [[[self appState] objectForKey:@"currentInstruction"] intValue];
+	NSLog(@"From disk: chapter = %d, instruction = %d", chapter, instruction);
+	
+	if (chapter + 1 >= [[self chapterInstructions] count]) {
+		chapter = 0;
+		instruction = 0;
+		NSLog(@"Chapter too large: chapter = %d, instruction = %d", chapter, instruction);
+	}
+	[self setCurrentChapter:chapter];
+	if (instruction + 1 >= [[self chapter] count]) {
+		instruction = 0;
+		NSLog(@"Instruction too large: chapter = %d, instruction = %d", chapter, instruction);
+	}
+	[self setCurrentInstruction:instruction];
 
 	// TODO(viki) Check the return value 
 	[self nextInstructionFromArray];
 
 	// Get the current input source name.
-	// TODO(viki): 
+	// TODO(viki): Use this to choose the lesson.
 	TISInputSourceRef source = TISCopyCurrentKeyboardInputSource();
 	NSString *s = (TISGetInputSourceProperty(source, kTISPropertyInputSourceID));
 	NSLog (@"The source name is: %@", s);
 }
 
+- (void)switchChapter: (id) sender {
+	NSLog(@"Switching to chapter %@", sender);
+}
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 	// Save the number of problems solved
 	[[self appState] setValue: [NSNumber numberWithInt:[self currentInstruction]] forKey:@"currentInstruction"];
+	[[self appState] setValue: [NSNumber numberWithInt:[self currentChapter]] forKey:@"currentChapter"];
+	[[self appState] setValue: [NSNumber numberWithFloat:[[[self inputArea] font] pointSize]] forKey:@"fontSize"];
+
 	NSString *fileName = [self filenameWithStoredState];
 	BOOL written = [[self appState] writeToFile:fileName atomically:YES ];
 	NSLog (@"Wrote (? %d) to a file the dictionary %@", written, [self appState]);	
@@ -118,10 +180,10 @@
 // Some text changed. Check how much is correct and calculate WordsPerMinute.
 - (void) textDidChange:(NSNotification *)aNotification{
 	NSString *characters = [[self inputArea] string];
-	NSLog(@"The string is now %@", characters);
+//	NSLog(@"The string is now %@", characters);
 	// Are we done yet? Transition to the next input.
 	if ([[self instruction] compare:characters] == NSOrderedSame) {
-		NSLog(@"----Next string");
+//		NSLog(@"----Next string");
 		[self nextInstructionFromArray];
 		return;
 	}
@@ -131,7 +193,7 @@
 		NSRange x = [[self instruction] rangeOfString:characters];
 		NSUInteger length = x.length;
 		NSTimeInterval timeSpent = -[[self startTime] timeIntervalSinceNow];
-		NSLog(@"Length = %d, Time interval = %f", length, timeSpent);
+//		NSLog(@"Length = %d, Time interval = %f", length, timeSpent);
 		// Roughly 5 characters make a word.
  		[[self wpm] setStringValue:[NSString stringWithFormat:@"%d", (int) (12.0*length/timeSpent)]];
 
@@ -146,8 +208,8 @@
 		[[self wpm] setStringValue:@"BAD"];
 		// Highlight the errant character
 		// Where is the first mistake?
-		NSString *correct = [characters commonPrefixWithString:[self instruction] options:NSLiteralSearch];
-		NSLog (@"The correct part is: %@", correct);
+//		NSString *correct = [characters commonPrefixWithString:[self instruction] options:NSLiteralSearch];
+//		NSLog (@"The correct part is: %@", correct);
 //		NSUInteger start = [correct length];
 		// And let's find how big the original string is.
 //		NSUInteger end = [[self instruction] length] - start;
