@@ -166,9 +166,10 @@
 	NSLog(@"Switching to chapter %@", sender);
 	NSMenuItem *item = (NSMenuItem *)sender;
 	int chapter = [item tag];
-	// TODO: highlight it.  Also, display chapter name in the title.
+	// TODO: highlight it.
 	[self setCurrentChapter:chapter];
 	[self setCurrentInstruction:0];
+	// Display chapter name in the title.
 	NSString *chapterName = [[self chapter] objectAtIndex:0];
 	NSLog(@"switchChapter: Switching to chapter %@", chapterName);
 	[[self window] setTitle:[NSString stringWithFormat:@"Typing Tutor: %@", chapterName]];
