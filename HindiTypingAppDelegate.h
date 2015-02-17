@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface HindiTypingAppDelegate : NSObject {
 	/// Area to accept keyboard input
 	NSTextView *inputArea;
@@ -22,9 +21,6 @@
 	/// Time at which the typing started.
 	NSDate *startTime;
 	
-	/// The state of the app at any time.
-	NSDictionary *appState;
-
 	// Array of arrays.  First array contains chapter.  Inner arrays contain instructions.
 	NSArray *chapterInstructions;
 	// The current chapter, an index into chapterInstructions.
@@ -41,7 +37,6 @@
 @property (retain) IBOutlet NSMenu *chapterMenu;
 @property (retain) NSDate *startTime;
 @property (retain) NSArray *chapterInstructions;
-@property (retain) NSDictionary *appState;
 
 @property (assign) int currentInstruction;
 @property (assign) int currentChapter;

@@ -36,7 +36,6 @@
 @synthesize startTime;
 @synthesize chapterInstructions;
 @synthesize currentChapter;
-@synthesize appState;
 @synthesize currentInstruction;
 @synthesize currentlyBad;
 
@@ -110,33 +109,35 @@
 	
 	NSString *fileName = [self filenameWithStoredState];
 	NSLog(@"Name of file: %@", fileName);
-	[self setAppState: [NSMutableDictionary dictionaryWithContentsOfFile:fileName]];
-	NSLog(@"Dictionary: %@", [self appState]);
-	if ([self appState] == nil) {
+	NSMutableDictionary *appState = [NSMutableDictionary dictionaryWithContentsOfFile:fileName];
+	NSLog(@"Dictionary: %@", appState);
+	if (appState == nil) {
 		// Write a new file containing the state, not nil
-		[self setAppState: [NSMutableDictionary dictionaryWithCapacity:2]];
-		[[self appState] setValue:@"initialized" forKey:@"started"];
-		BOOL written = [[self appState] writeToFile:fileName atomically:YES ];
-		NSLog (@"Wrote (? %d) to a file the dictionary %@", written, [self appState]);
+		appState = [NSMutableDictionary dictionaryWithCapacity:2];
+		[appState setValue:@"initialized" forKey:@"started"];
+		BOOL written = [appState writeToFile:fileName atomically:YES ];
+		NSLog (@"Wrote (status = %d) to a file the dictionary %@", written, appState);
 	}
 
-	NSArray *shopping = [NSArray arrayWithObjects:@"milk", @"eggs", @"bread", nil];
-	// Now let's iterate over this and create menu items for them.
-	for (NSString *item in shopping) {
-		NSLog(@"Adding %@", item);
-		NSMenuItem *element = [[NSMenuItem alloc] initWithTitle:item action:@selector(switchChapter:) keyEquivalent:@""];
+	// Create names of chapters from the list.
+	for (int i=0, size = [[self chapterInstructions] count]; i<size; ++i) {
+		NSArray *chapter = [[self chapterInstructions] objectAtIndex:i];
+		NSString *chapterName = [chapter objectAtIndex:0];
+		NSMenuItem *element = [[NSMenuItem alloc] initWithTitle:chapterName action:@selector(switchChapter:) keyEquivalent:@""];
+		[element setTag:i];
 		[element setEnabled:YES];
 		[[self chapterMenu] addItem:[element autorelease]];
 		NSLog(@"The menu is: %@", element);
 	}
-	float fontSize = [[[self appState] objectForKey:@"fontSize"] floatValue];
+
+	float fontSize = [[appState objectForKey:@"fontSize"] floatValue];
 	if (fontSize != 0) {
 		[[self inputArea] setFont:[NSFont systemFontOfSize:fontSize]];
 	}
 	
 	// Read the instruction the user was doing last.  We subtract one because nextInstructionFromArray will increment this anyway.
-	int chapter = [[[self appState] objectForKey:@"currentChapter"] intValue];
-	int instruction = [[[self appState] objectForKey:@"currentInstruction"] intValue];
+	int chapter = [[appState objectForKey:@"currentChapter"] intValue];
+	int instruction = [[appState objectForKey:@"currentInstruction"] intValue];
 	NSLog(@"From disk: chapter = %d, instruction = %d", chapter, instruction);
 	
 	if (chapter + 1 >= [[self chapterInstructions] count]) {
@@ -163,27 +164,32 @@
 
 - (void)switchChapter: (id) sender {
 	NSLog(@"Switching to chapter %@", sender);
+	NSMenuItem *item = (NSMenuItem *)sender;
+	int chapter = [item tag];
+	// TODO: highlight it.  Also, display chapter name in the title.
+	[self setCurrentChapter:chapter];
+	[self setCurrentInstruction:0];
+	[self nextInstructionFromArray];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 	// Save the number of problems solved
-	[[self appState] setValue: [NSNumber numberWithInt:[self currentInstruction]] forKey:@"currentInstruction"];
-	[[self appState] setValue: [NSNumber numberWithInt:[self currentChapter]] forKey:@"currentChapter"];
-	[[self appState] setValue: [NSNumber numberWithFloat:[[[self inputArea] font] pointSize]] forKey:@"fontSize"];
+	NSMutableDictionary *appState = [NSMutableDictionary dictionaryWithCapacity:3];
+	[appState setValue: [NSNumber numberWithInt:[self currentInstruction]] forKey:@"currentInstruction"];
+	[appState setValue: [NSNumber numberWithInt:[self currentChapter]] forKey:@"currentChapter"];
+	[appState setValue: [NSNumber numberWithFloat:[[[self inputArea] font] pointSize]] forKey:@"fontSize"];
 
 	NSString *fileName = [self filenameWithStoredState];
-	BOOL written = [[self appState] writeToFile:fileName atomically:YES ];
-	NSLog (@"Wrote (? %d) to a file the dictionary %@", written, [self appState]);	
+	BOOL written = [appState writeToFile:fileName atomically:YES ];
+	NSLog(@"Wrote state to disk (status=%d), state = %@", written, appState);
 }
 
 
 // Some text changed. Check how much is correct and calculate WordsPerMinute.
 - (void) textDidChange:(NSNotification *)aNotification{
 	NSString *characters = [[self inputArea] string];
-//	NSLog(@"The string is now %@", characters);
 	// Are we done yet? Transition to the next input.
 	if ([[self instruction] compare:characters] == NSOrderedSame) {
-//		NSLog(@"----Next string");
 		[self nextInstructionFromArray];
 		return;
 	}
