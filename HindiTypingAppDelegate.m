@@ -22,11 +22,6 @@
 - (NSString *) filenameWithStoredState;
 @end
 
-// TODO(viki): Store the progress made till now
-// TODO(viki): Allow user to resume at a specific spot
-// TODO: Menu item to go back to the start or a specific chapter
-// TODO: a notion of chapters for each hand and each row.
-
 
 @implementation HindiTypingAppDelegate
 @synthesize inputArea;
@@ -68,7 +63,6 @@
 // Name of the file where we will store our state
 - (NSString *) filenameWithStoredState {
 	return [NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), @"Library/Application Support/HindiTutor", @"saved-state"];
-//	return [NSString stringWithFormat:@"%@/%@", NSHomeDirectory(), @"saved-state"];
 }
 
 // Returns YES if we are at the end of the input.
