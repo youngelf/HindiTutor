@@ -3,7 +3,7 @@
 <plist version="1.0">
 <array>
 	<array>
-		<string>FIRST</string>
+		<string>Right hand on home keys</string>
 		<string>चच चच चच चच चच</string>
 		<string>तत तत तत तत तत</string>
 		<string>कक कक कक कक</string>
@@ -15,30 +15,18 @@
 		<string>टट टच टट टट टट टट टट</string>
 		<string>टच टच चट चट चट चटप</string>
 		<string>टचप टचप टचप पतच</string>
-		<string>चो चो चो चो चोर चोर चोर</string>
-		<string>तोर रोच रोच रोत रोत रोक</string>
-		<string>कोक कोत कोच कोच कोर</string>
-		<string>रेत रेत रेत रेट टेट टेक टेप</string>
-		<string>रिक किक कित कित</string>
-		<string>किप पिक</string>
-		<string>चोच चेचे चोचो</string>
-		<string>कोको कोके कोके</string>
-		<string>रोरो रोरे रोरे रोके</string>
+		<string>चतकर चतचर चतरप चतरट चततरप रतकट रतचप चतटचर पकत रतप</string>
+		<string>तकरप चतर टचतप तकरप रकतचतक पकरप चत कर तकप चत पकतर चत पप तर</string>
+		<string>पक तर कतरप च प कपर तचकर चक प करप चतक चतक ट चकत प करपक रप</string>
+		<string>तकर कपर परपचत पत रपरच तकरप पपतचर रतचच पकतक पपकतच तकरप</string>
+		<string>पतरचरक रकतच रतकप रतक पतक चच क चट चत पर प पतक र पतकर पतकच</string>
 	</array>
 	<array>
-		<string>second</string>
-		<string>चच चच चच चच चच</string>
-		<string>तत तत तत तत तत</string>
-		<string>कक कक कक कक</string>
-		<string>रर रर रर रर रर</string>
-		<string>पप पप पप पप पप</string>
-		<string>चत चत चत चत चत</string>
-		<string>चक चक चक चक कच</string>
-		<string>रक रक रत रत रच रच</string>
-		<string>टट टच टट टट टट टट टट</string>
-		<string>टच टच चट चट चट चटप</string>
-		<string>टचप टचप टचप पतच</string>
+		<string>Both hands on home keys</string>
 		<string>चो चो चो चो चोर चोर चोर</string>
+		<string>चो चे चि चो चे चि चो चि चे तो ते ति तो ते ति तो ते ति तो ते ति</string>
+		<string>को के कि को के कि को के कि को के कि को के कि कु कि के को कु कि के को</string>
+		<string>रु रि रे रो रु रि रे रो रो रे रि रु तो ति ते तु तो तु ति ते चु चो रे रु रे रि तु रे रु</string>
 		<string>तोर रोच रोच रोत रोत रोक</string>
 		<string>कोक कोत कोच कोच कोर</string>
 		<string>रेत रेत रेत रेट टेट टेक टेप</string>
@@ -47,29 +35,17 @@
 		<string>चोच चेचे चोचो</string>
 		<string>कोको कोके कोके</string>
 		<string>रोरो रोरे रोरे रोके</string>
+		<string>रेरत रचे रको रचटो कतेर करे रके तकरो रकि रकितेर तोकर</string>
 	</array>
 	<array>
-		<string>third</string>
-		<string>चच चच चच चच चच</string>
-		<string>तत तत तत तत तत</string>
-		<string>कक कक कक कक</string>
-		<string>रर रर रर रर रर</string>
-		<string>पप पप पप पप पप</string>
-		<string>चत चत चत चत चत</string>
-		<string>चक चक चक चक कच</string>
-		<string>रक रक रत रत रच रच</string>
-		<string>टट टच टट टट टट टट टट</string>
-		<string>टच टच चट चट चट चटप</string>
-		<string>टचप टचप टचप पतच</string>
-		<string>चो चो चो चो चोर चोर चोर</string>
-		<string>तोर रोच रोच रोत रोत रोक</string>
-		<string>कोक कोत कोच कोच कोर</string>
-		<string>रेत रेत रेत रेट टेट टेक टेप</string>
-		<string>रिक किक कित कित</string>
-		<string>किप पिक</string>
-		<string>चोच चेचे चोचो</string>
-		<string>कोको कोके कोके</string>
-		<string>रोरो रोरे रोरे रोके</string>
+		<string>Shift Key and Right Hand on Home keys</string>
+		<string>छ थ ख ऱ फ ठ फ ऱ ख थ छ ठ</string>
+		<string>छछ थथ खख ऱऱ फफ ठठ</string>
+		<string>छछ थथ खख खख ऱऱ फफ</string>
+		<string>छथ छथ छथ थख थख थख थख थख थख थख ऱफ ऱफ ऱफ फऱ फऱ फऱ ऱख ऱख ऱख खथ खथ खथ थछ थछ</string>
+		<string>फफ ऱऱ खख थथ छछ ठठ टठ चछ तथ कख रऱ पफ</string>
+		<string>फऱ फख फथ फछ फठ फफ फफ फऱ फख फथ फछ फठ</string>
+		<string>फथफ फखफ फथफ फछफ फठफ चछ तथ कख रऱ पफ</string>
 	</array>
 	<array>
 		<string>Fourth</string>

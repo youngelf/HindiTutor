@@ -31,7 +31,13 @@
 	int currentInstruction;
 
 	BOOL currentlyBad;	
+
+	// Core Data stuff.
+    NSPersistentStoreCoordinator *persistentStoreCoordinator;
+    NSManagedObjectModel *managedObjectModel;
+    NSManagedObjectContext *managedObjectContext;
 }
+
 
 @property (retain) IBOutlet NSWindow *window;
 @property (retain) IBOutlet NSTextView *inputArea;
@@ -50,5 +56,15 @@
 - (void) applicationWillTerminate:(NSNotification *)aNotification;
 - (void) textDidChange:(NSNotification *)aNotification;
 - (void) switchChapter: (id) sender;
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)sender;
+
+// Core Data
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator;
+- (NSManagedObjectModel *)managedObjectModel;
+- (NSManagedObjectContext *)managedObjectContext;
+
+- (IBAction)saveAction:sender;
+
+
 
 @end

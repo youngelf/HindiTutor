@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
+		38218ED51A9A4CA6003ECC4D /* UserSettings.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 38218ED41A9A4CA6003ECC4D /* UserSettings.xcdatamodel */; };
 		386DC7661A848C5100891438 /* HindiTypingAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 386DC7651A848C5100891438 /* HindiTypingAppDelegate.m */; };
 		386DC8D91A868EA700891438 /* lesson.plist in Resources */ = {isa = PBXBuildFile; fileRef = 386DC8D81A868EA700891438 /* lesson.plist */; };
 		386DC91A1A86B52E00891438 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 386DC9191A86B52E00891438 /* Carbon.framework */; };
@@ -25,6 +26,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* HindiTyping_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HindiTyping_Prefix.pch; sourceTree = "<group>"; };
+		38218ED41A9A4CA6003ECC4D /* UserSettings.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.xcdatamodel; path = UserSettings.xcdatamodel; sourceTree = "<group>"; };
 		386DC7641A848C5100891438 /* HindiTypingAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HindiTypingAppDelegate.h; sourceTree = "<group>"; };
 		386DC7651A848C5100891438 /* HindiTypingAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HindiTypingAppDelegate.m; sourceTree = "<group>"; };
 		386DC8D81A868EA700891438 /* lesson.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = lesson.plist; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				38218ED41A9A4CA6003ECC4D /* UserSettings.xcdatamodel */,
 			);
 			name = HindiTyping;
 			sourceTree = "<group>";
@@ -181,6 +184,7 @@
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				386DC7661A848C5100891438 /* HindiTypingAppDelegate.m in Sources */,
+				38218ED51A9A4CA6003ECC4D /* UserSettings.xcdatamodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

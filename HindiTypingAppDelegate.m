@@ -20,7 +20,15 @@
 
 /// Name of the file containing our saved state
 - (NSString *) filenameWithStoredState;
+
 @end
+
+
+static NSString *currentInstructionKey = @"currentInstruction";
+static NSString *currentChapterKey = @"currentChapter";
+static NSString *fontSizeKey = @"fontSize";
+// The normal color of the text area box.  We change it to red when the user makes a mistake.
+static NSColor *previousBackgroundColor;
 
 
 @implementation HindiTypingAppDelegate
@@ -36,6 +44,12 @@
 @synthesize currentInstruction;
 @synthesize currentlyBad;
 
+
+/// Kill application if our window is shut.
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)sender {
+	return YES;
+}
+
 - (id) init {
 	self = [super init];
 	if (self) {
@@ -49,7 +63,6 @@
 		// Set the first element as the current chapter.
 		[self setCurrentChapter:0];
 		[self setCurrentInstruction:0];
-		[self setCurrentlyBad:NO];
 	}
 	return self;
 }
@@ -76,7 +89,6 @@
 		return YES;
 	}
 	// If we are at the end of the chapter, then go to the next one.
-	// TODO(viki): Change the title to show the name of the chapter.
 	int nextInstruction = [self currentInstruction] + 1;
 	if (nextInstruction >= [[self chapter] count]) {
 		// Next chapter.
@@ -101,6 +113,7 @@
 	[self setStartTime:[NSDate date]];
 	return NO;
 }
+
 
 - (void) applicationDidFinishLaunching: (NSNotification *) aNotification {
 	NSLog(@"applicationDidFinishLaunching");
@@ -128,29 +141,30 @@
 		NSLog(@"The menu is: %@", element);
 	}
 
-	float fontSize = [[appState objectForKey:@"fontSize"] floatValue];
+	float fontSize = [[appState objectForKey:fontSizeKey] floatValue];
 	if (fontSize != 0) {
 		[[self inputArea] setFont:[NSFont systemFontOfSize:fontSize]];
 	}
 	
 	// Read the instruction the user was doing last.  We subtract one because nextInstructionFromArray will increment this anyway.
-	int chapter = [[appState objectForKey:@"currentChapter"] intValue];
-	int instruction = [[appState objectForKey:@"currentInstruction"] intValue];
+	int chapter = [[appState objectForKey:currentChapterKey] intValue];
+	int instruction = [[appState objectForKey:currentInstructionKey] intValue];
 	NSLog(@"From disk: chapter = %d, instruction = %d", chapter, instruction);
 	
 	if (chapter + 1 >= [[self chapterInstructions] count]) {
 		chapter = 0;
-		instruction = 0;
+		instruction = 1;
 		NSLog(@"Chapter too large: chapter = %d, instruction = %d", chapter, instruction);
 	}
 	[self setCurrentChapter:chapter];
 	NSString *chapterName = [[self chapter] objectAtIndex:0];
 	[[self window] setTitle:[NSString stringWithFormat:@"Typing Tutor: %@", chapterName]];
 	if (instruction + 1 >= [[self chapter] count]) {
-		instruction = 0;
+		instruction = 1;
 		NSLog(@"Instruction too large: chapter = %d, instruction = %d", chapter, instruction);
 	}
-	[self setCurrentInstruction:instruction];
+	// nextInstructionFromArray will increment this, so reduce the instruction number in advance.
+	[self setCurrentInstruction:instruction - 1];
 
 	// TODO(viki) Check the return value 
 	[self nextInstructionFromArray];
@@ -173,25 +187,45 @@
 	NSString *chapterName = [[self chapter] objectAtIndex:0];
 	NSLog(@"switchChapter: Switching to chapter %@", chapterName);
 	[[self window] setTitle:[NSString stringWithFormat:@"Typing Tutor: %@", chapterName]];
-	
+	[self setCurrentlyBad:NO];
 	[self nextInstructionFromArray];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 	// Save the number of problems solved
 	NSMutableDictionary *appState = [NSMutableDictionary dictionaryWithCapacity:3];
-	[appState setValue: [NSNumber numberWithInt:[self currentInstruction]] forKey:@"currentInstruction"];
-	[appState setValue: [NSNumber numberWithInt:[self currentChapter]] forKey:@"currentChapter"];
-	[appState setValue: [NSNumber numberWithFloat:[[[self inputArea] font] pointSize]] forKey:@"fontSize"];
+	[appState setValue: [NSNumber numberWithInt:[self currentInstruction]] forKey:currentInstructionKey];
+	[appState setValue: [NSNumber numberWithInt:[self currentChapter]] forKey:currentChapterKey];
+	[appState setValue: [NSNumber numberWithFloat:[[[self inputArea] font] pointSize]] forKey:fontSizeKey];
 
 	NSString *fileName = [self filenameWithStoredState];
 	BOOL written = [appState writeToFile:fileName atomically:YES ];
 	NSLog(@"Wrote state to disk (status=%d), state = %@", written, appState);
 }
 
+- (void) setCurrentlyBad: (BOOL) bad {
+	// If nothing changed, ignore
+	if ([self currentlyBad] == bad) {
+		return;
+	}
+	if (bad) {
+		// User made a mistake
+		[[self wpm] setStringValue:@"BAD"];
+		[[self wpm] setTextColor:[NSColor redColor]];
+		previousBackgroundColor = [[self instructionArea] backgroundColor];
+		[[self instructionArea] setBackgroundColor:[NSColor redColor]];
+	} else {
+		// User corrected the previous mistake
+		[[self instructionArea] setBackgroundColor:previousBackgroundColor];
+		[[self wpm] setTextColor:[NSColor blackColor]];
+		[[self wpm] setStringValue:@""];
+	}
+	currentlyBad = bad;
+}
+
 
 // Some text changed. Check how much is correct and calculate WordsPerMinute.
-- (void) textDidChange:(NSNotification *)aNotification{
+- (void) textDidChange:(NSNotification *)aNotification {
 	NSString *characters = [[self inputArea] string];
 	// Are we done yet? Transition to the next input.
 	if ([[self instruction] compare:characters] == NSOrderedSame) {
@@ -204,31 +238,191 @@
 		NSRange x = [[self instruction] rangeOfString:characters];
 		NSUInteger length = x.length;
 		NSTimeInterval timeSpent = -[[self startTime] timeIntervalSinceNow];
-//		NSLog(@"Length = %d, Time interval = %f", length, timeSpent);
 		// Roughly 5 characters make a word.
  		[[self wpm] setStringValue:[NSString stringWithFormat:@"%d", (int) (12.0*length/timeSpent)]];
 
-		// Reset all color to black
-//		[[self inputArea] setTextColor:[NSColor blackColor]];
-//		[[self instructionArea] setFont:[NSFont boldSystemFontOfSize:32]];
-		[[self wpm] setTextColor:[NSColor blackColor]];
 		[self setCurrentlyBad:NO];
-		// When the entire statement is done, then transition to the next line.
-	} else if (![self currentlyBad]) {
-		/// Mistake
-		[[self wpm] setStringValue:@"BAD"];
-		// Highlight the errant character
-		// Where is the first mistake?
-//		NSString *correct = [characters commonPrefixWithString:[self instruction] options:NSLiteralSearch];
-//		NSLog (@"The correct part is: %@", correct);
-//		NSUInteger start = [correct length];
-		// And let's find how big the original string is.
-//		NSUInteger end = [[self instruction] length] - start;
-//		[[self inputArea] setTextColor:[NSColor redColor] range:NSMakeRange(start, start+2)];
-//		[[self instructionArea] setFont:[NSFont boldSystemFontOfSize:32] range:NSMakeRange(start, start + 2)];
-		[[self wpm] setTextColor:[NSColor redColor]];
+	} else {
 		[self setCurrentlyBad:YES];
 	}
 }
+
+
+// Core data
+/**
+ Returns the support folder for the application, used to store the Core Data
+ store file.  This code uses a folder named "Untitledkjh" for
+ the content, either in the NSApplicationSupportDirectory location or (if the
+ former cannot be found), the system's temporary directory.
+ */
+
+- (NSString *)applicationSupportFolder {
+	
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : NSTemporaryDirectory();
+    NSString *folder = [basePath stringByAppendingPathComponent:@"HindiTyping"];
+	NSLog (@"Returning %@ as the folder", folder);
+	return folder;
+}
+
+
+/**
+ Creates, retains, and returns the managed object model for the application 
+ by merging all of the models found in the application bundle.
+ */
+
+- (NSManagedObjectModel *)managedObjectModel {
+	
+    if (managedObjectModel != nil) {
+        return managedObjectModel;
+    }
+	
+    managedObjectModel = [[NSManagedObjectModel mergedModelFromBundles:nil] retain];    
+    return managedObjectModel;
+}
+
+
+/**
+ Returns the persistent store coordinator for the application.  This 
+ implementation will create and return a coordinator, having added the 
+ store for the application to it.  (The folder for the store is created, 
+ if necessary.)
+ */
+
+- (NSPersistentStoreCoordinator *) persistentStoreCoordinator {
+	
+    if (persistentStoreCoordinator != nil) {
+        return persistentStoreCoordinator;
+    }
+	
+    NSFileManager *fileManager;
+    NSString *applicationSupportFolder = nil;
+    NSURL *url;
+    NSError *error;
+    
+    fileManager = [NSFileManager defaultManager];
+    applicationSupportFolder = [self applicationSupportFolder];
+    if ( ![fileManager fileExistsAtPath:applicationSupportFolder isDirectory:NULL] ) {
+        [fileManager createDirectoryAtPath:applicationSupportFolder attributes:nil];
+    }
+    
+    url = [NSURL fileURLWithPath: [applicationSupportFolder stringByAppendingPathComponent: @"HindiTypingState.xml"]];
+    persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel: [self managedObjectModel]];
+    if (![persistentStoreCoordinator addPersistentStoreWithType:NSXMLStoreType configuration:nil URL:url options:nil error:&error]){
+        [[NSApplication sharedApplication] presentError:error];
+    }    
+	
+    return persistentStoreCoordinator;
+}
+
+
+/**
+ Returns the managed object context for the application (which is already
+ bound to the persistent store coordinator for the application.) 
+ */
+
+- (NSManagedObjectContext *) managedObjectContext {
+	
+    if (managedObjectContext != nil) {
+        return managedObjectContext;
+    }
+	
+    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
+    if (coordinator != nil) {
+        managedObjectContext = [[NSManagedObjectContext alloc] init];
+        [managedObjectContext setPersistentStoreCoordinator: coordinator];
+    }
+    
+    return managedObjectContext;
+}
+
+
+/**
+ Returns the NSUndoManager for the application.  In this case, the manager
+ returned is that of the managed object context for the application.
+ */
+
+- (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
+    return [[self managedObjectContext] undoManager];
+}
+
+
+/**
+ Performs the save action for the application, which is to send the save:
+ message to the application's managed object context.  Any encountered errors
+ are presented to the user.
+ */
+
+- (IBAction) saveAction:(id)sender {
+	
+    NSError *error = nil;
+    if (![[self managedObjectContext] save:&error]) {
+        [[NSApplication sharedApplication] presentError:error];
+    }
+}
+
+
+/**
+ Implementation of the applicationShouldTerminate: method, used here to
+ handle the saving of changes in the application managed object context
+ before the application terminates.
+ */
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+	
+    NSError *error;
+    int reply = NSTerminateNow;
+    
+    if (managedObjectContext != nil) {
+        if ([managedObjectContext commitEditing]) {
+            if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
+				
+                // This error handling simply presents error information in a panel with an 
+                // "Ok" button, which does not include any attempt at error recovery (meaning, 
+                // attempting to fix the error.)  As a result, this implementation will 
+                // present the information to the user and then follow up with a panel asking 
+                // if the user wishes to "Quit Anyway", without saving the changes.
+				
+                // Typically, this process should be altered to include application-specific 
+                // recovery steps.  
+				
+                BOOL errorResult = [[NSApplication sharedApplication] presentError:error];
+				
+                if (errorResult == YES) {
+                    reply = NSTerminateCancel;
+                } 
+				
+                else {
+					
+                    int alertReturn = NSRunAlertPanel(nil, @"Could not save changes while quitting. Quit anyway?" , @"Quit anyway", @"Cancel", nil);
+                    if (alertReturn == NSAlertAlternateReturn) {
+                        reply = NSTerminateCancel;	
+                    }
+                }
+            }
+        } 
+        
+        else {
+            reply = NSTerminateCancel;
+        }
+    }
+    
+    return reply;
+}
+
+
+/**
+ Implementation of dealloc, to release the retained variables.
+ */
+
+- (void) dealloc {
+	
+    [managedObjectContext release], managedObjectContext = nil;
+    [persistentStoreCoordinator release], persistentStoreCoordinator = nil;
+    [managedObjectModel release], managedObjectModel = nil;
+    [super dealloc];
+}
+
+
 
 @end
